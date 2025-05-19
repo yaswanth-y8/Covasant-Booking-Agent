@@ -32,6 +32,7 @@ adk_sql_session_service: Optional[DatabaseSessionService] = None
 AGENT_MODULE_PATHS = {
     "movie_booking_agent": "Movie_ticket_booking_agent.agent",
     "bus_booking_agent": "Bus_ticket_booking_agent.agent",
+
 }
 loaded_agents: Dict[str, Agent] = {}
 API_DEFAULT_USER_ID = "user_1" 
@@ -105,7 +106,7 @@ async def _run_single_agent_turn(
     agent_to_run: Agent,
     session_id: str, 
     user_id: str, 
-    app_name_for_run: str, # agent_name
+    app_name_for_run: str, 
     query_text: str,
 ) -> Dict[str, Any]: 
     global adk_sql_session_service 
@@ -113,7 +114,7 @@ async def _run_single_agent_turn(
         print("ERROR: ADK DatabaseSessionService (SQL) not initialized.")
         return {"final_utterance": "Server Error: ADK Session service unavailable.",
                  "session_id": session_id, "user_id": user_id, 
-                 "error": "ADK Session service unavailable."} # Changed key to 'error'
+                 "error": "ADK Session service unavailable."} 
 
     runner = Runner(
         app_name=app_name_for_run, 
@@ -261,8 +262,11 @@ async def agent_query_turn_handler(
         print(f"Agent '{agent_name}' retrieved for ADK session '{session_id}'.")
 
         turn_result_dict = await _run_single_agent_turn(
-            agent=agent_instance, session_id=session_id, user_id=user_id,
-            app_name=agent_name, query_text=query
+            agent_to_run=agent_instance,     
+            session_id=session_id,
+            user_id=user_id,
+            app_name_for_run=agent_name, 
+            query_text=query
         )
         
         return ConverseResponse(
@@ -270,7 +274,7 @@ async def agent_query_turn_handler(
             full_log=turn_result_dict.get("full_event_log", []), 
             session_id=turn_result_dict["session_id"],
             user_id=turn_result_dict["user_id"],
-            error_message=turn_result_dict.get("error") 
+            error_message=turn_result_dict.get("error")
         )
     except ValueError as e:
         print(f"ValueError processing query for session '{session_id}': {str(e)}")
