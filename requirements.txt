@@ -9,6 +9,7 @@ click==8.2.0
 colorama==0.4.6
 cryptography==44.0.3
 Deprecated==1.2.18
+dnspython==2.7.0
 docstring_parser==0.16
 fastapi==0.115.12
 google-adk==0.5.0
@@ -38,11 +39,13 @@ grpcio-status==1.71.0
 h11==0.16.0
 httpcore==1.0.9
 httplib2==0.22.0
+httptools==0.6.4
 httpx==0.28.1
 httpx-sse==0.4.0
 idna==3.10
 importlib_metadata==8.6.1
 mcp==1.8.1
+motor==3.7.1
 numpy==2.2.5
 opentelemetry-api==1.33.0
 opentelemetry-exporter-gcp-trace==1.9.0
@@ -58,6 +61,7 @@ pycparser==2.22
 pydantic==2.11.4
 pydantic-settings==2.9.1
 pydantic_core==2.33.2
+pymongo==4.13.0
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
@@ -79,6 +83,7 @@ tzlocal==5.3.1
 uritemplate==4.1.1
 urllib3==2.4.0
 uvicorn==0.34.2
+watchfiles==1.0.5
 websockets==15.0.1
 wrapt==1.17.2
 zipp==3.21.0
