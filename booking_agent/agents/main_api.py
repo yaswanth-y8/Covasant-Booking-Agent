@@ -15,12 +15,8 @@ from google.genai.types import Content
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOTENV_PATH = os.path.join(BASE_DIR, '.env')
-if os.path.exists(DOTENV_PATH):
-    load_dotenv(dotenv_path=DOTENV_PATH, override=True)
-    print(f".env loaded from {DOTENV_PATH} by main_api.")
-else:
-    print(f"Warning: .env file not found at {DOTENV_PATH} by main_api. Using defaults.")
 
+load_dotenv()
 ADK_SQL_DB_URL = os.getenv(
     "ADK_SQL_DB_URL",
     f"sqlite:///{os.path.join(BASE_DIR, 'adk_internal_sessions.db')}"
@@ -192,7 +188,7 @@ BUS_BOOKING_AGENT_CARD = {
     ],
     "endpoints": {
         "execute_task": {
-            "url": f"{os.getenv('MAIN_API_BASE_URL', 'http://localhost:8000/bus_booking_agent')}/query",
+            "url": f"{os.getenv('MAIN_API_BASE_URL', 'http://localhost:8001/bus_booking_agent')}/query",
             "method": "POST",
             "request_schema_summary": "{'query': 'string'} (expects X-Session-Id in header for this specific endpoint)",
             "response_schema_summary": "{'final_agent_utterance': 'string', ...}"
@@ -209,7 +205,7 @@ MOVIE_BOOKING_AGENT_CARD = {
     "endpoints": {
         "execute_task": {
             # IMPORTANT: This URL must be absolute and reachable by ClientAgent
-            "url": f"{os.getenv('MAIN_API_BASE_URL', 'http://localhost:8000/movie_booking_agent')}/query",
+            "url": f"{os.getenv('MAIN_API_BASE_URL', 'http://localhost:8001/movie_booking_agent')}/query",
             "method": "POST",
             "request_schema_summary": "{'query': 'string'} (expects X-Session-Id in header for this specific endpoint)",
             "response_schema_summary": "{'final_agent_utterance': 'string', ...}"
@@ -337,4 +333,4 @@ async def get_bus_agent_card():
     return BUS_BOOKING_AGENT_CARD
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)
