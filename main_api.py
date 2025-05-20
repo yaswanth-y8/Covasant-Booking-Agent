@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 import asyncio
 from contextlib import asynccontextmanager
-
+import uvicorn
 from google.adk import Agent, Runner
 from google.adk.sessions.database_session_service import DatabaseSessionService
 from google.adk.sessions import Session 
@@ -62,7 +62,7 @@ async def lifespan(app_instance: FastAPI) -> AsyncGenerator[None, None]:
     print("Application shutdown complete.")
 
 app = FastAPI(
-    title="ADK Agent Service (SQLite ADK Sessions)",
+    title="ADK Agent Service",
     lifespan=lifespan
 )
 
@@ -179,6 +179,40 @@ async def _run_single_agent_turn(
         "user_id": user_id,
         "error": error_message_from_event 
     }
+BUS_BOOKING_AGENT_CARD = {
+    "agent_name": "bus_booking_agent",
+    "version": "1.0.0",
+    "description": "Handles bus ticket booking queries.",
+    "capabilities_summary": [
+        "finding bus routes", "checking bus seat availability", "booking bus tickets"
+    ],
+    "endpoints": {
+        "execute_task": {
+            "url": f"{os.getenv('MAIN_API_BASE_URL', 'http://localhost:8001/bus_booking_agent')}/query",
+            "method": "POST",
+            "request_schema_summary": "{'query': 'string'} (expects X-Session-Id in header for this specific endpoint)",
+            "response_schema_summary": "{'final_agent_utterance': 'string', ...}"
+        }
+    }
+}
+MOVIE_BOOKING_AGENT_CARD = {
+    "agent_name": "movie_booking_agent",
+    "version": "1.0.0",
+    "description": "Handles all movie ticket booking related queries.",
+    "capabilities_summary": [
+        "finding movie showtimes", "selecting seats", "confirming movie bookings"
+    ],
+    "endpoints": {
+        "execute_task": {
+            # IMPORTANT: This URL must be absolute and reachable by ClientAgent
+            "url": f"{os.getenv('MAIN_API_BASE_URL', 'http://localhost:8001/movie_booking_agent')}/query",
+            "method": "POST",
+            "request_schema_summary": "{'query': 'string'} (expects X-Session-Id in header for this specific endpoint)",
+            "response_schema_summary": "{'final_agent_utterance': 'string', ...}"
+        }
+    }
+}
+
 
 @app.post("/start_agent_interaction/", response_model=StartAgentResponse)
 async def start_agent_interaction(fastapi_request: FastAPIRequest, request: StartAgentRequest = Body(...)):
@@ -284,7 +318,14 @@ async def agent_query_turn_handler(
         print(f"Unexpected error processing query: {str(e)}")
         import traceback; traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error processing query: {str(e)}")
+    
+@app.get("/movie_booking_agent/.well-known/agent-card")
+async def get_movie_agent_card():
+    return MOVIE_BOOKING_AGENT_CARD
+
+@app.get("/bus_booking_agent/.well-known/agent-card")
+async def get_bus_agent_card():
+    return BUS_BOOKING_AGENT_CARD
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main_api:app", host="127.0.0.1", port=8001,reload=True)
